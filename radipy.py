@@ -12,6 +12,8 @@ import click
 from prettytable import PrettyTable
 import threading
 
+from datetime import timedelta
+
 
 # http://stackoverflow.com/questions/4995733/how-to-create-a-spinning-command-line-cursor-using-pythonのパクリ
 class Spinner:
@@ -198,7 +200,10 @@ class Radipy(object):
 
         # 日を跨いでいる場合は前の日の番組表を探す
         except AttributeError:
-            datetime_api_url = 'http://radiko.jp/v3/program/date/{}/{}.xml'.format(int(self.ft[:8]) - 1, self.area_id)
+            original_date = datetime.datetime(int(self.ft[:4]), int(self.ft[4:6]), int(self.ft[6:8]))
+            target_date = original_date - timedelta(days=1)
+            target_date_str = target_date.strftime("%Y%m%d")
+            datetime_api_url = 'http://radiko.jp/v3/program/date/{}/{}.xml'.format(target_date_str, self.area_id)
             res = requests.get(url=datetime_api_url)
             channels_xml = res.content
             tree = ET.fromstring(channels_xml)
